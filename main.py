@@ -31,12 +31,12 @@ def init():
     # current_dir = os.path.dirname(os.path.abspath(__file__))
     # model_path = os.path.join(current_dir, "weights.pt") # 학습된 모델 파일 이름을 작성하세요.
     # model = torch.load(model_path, map_location="cpu") 
-    # 훈련한 모델을 불러오는 경우 반드시 위의 방법으로 경로를 지정하여 불러오시기 바랍니다. 양식을 따르지 않을 경우 채점 서버에서 오류가 발생할 수 있습니다.
+    # 훈련한 모델을 불러오는 경우 *반드시* 위의 방법으로 상대 경로를 지정하여 불러오시기 바랍니다. 양식을 따르지 않을 경우 채점 서버에서 오류가 발생할 수 있습니다.
     # model.eval() # model을 training이 아닌 evalutation 모드로 전환
     
     # 예시2: 학습된 모델을 사용하지 않는 경우
     # model = None 
-    # 위의 코드는 모델을 사용하지 않는다는 의미입니다. 모델이 필요없는 rule-based AI를 구현하신 분들은 이렇게 작성하시면 됩니다.
+    # 위의 코드는 모델을 사용하지 않는다는 의미입니다. 모델이 필요없는 Rule-based AI를 구현하신 분들은 이렇게 작성하시면 됩니다.
 
 def run(board_lines, xsize, ysize):
     # << 에이전트의 차례가 될 때마다 실행되는 함수입니다. >>
@@ -45,9 +45,9 @@ def run(board_lines, xsize, ysize):
 
     # x와 y는 선분이 시작되는 점의 좌표에 대한 x, y 성분입니다. 이 때, x가 가로, y가 세로를 의미합니다.
     # 좌상단 점에서부터 시작되며, x와 y는 각각 0 <= x <= xsize, 0 <= y <= ysiz는를 만족하는 정수입니다.
-    # z는 선분을 그릴 방향이며 0이면 가로(오른쪽), 1이면 세로(아래)로 선분을 그리게 됨.
+    # z는 선분을 그릴 방향이며 0이면 가로(오른쪽), 1이면 세로(아래)로 선분을 그리게 됩니다.
     # 이 때, x = xsize인 경우는 시작점이 가장 오른래에 있으므로 z = 0일 수 없으며,
-    # 마찬가지로 y = ysize인 경우에는 시작점이 가장 아래 줄에 있으므로 z = 1일 수 없음.
+    # 마찬가지로 y = ysize인 경우에는 시작점이 가장 아래 줄에 있으므로 z = 1일 수 없습니다.
     x = random.randint(0, xsize - 1)
     y = random.randint(0, ysize - 1)
     z = random.choice([0, 1])
