@@ -1,19 +1,42 @@
 # main.py에 대한 예시 파일 안내입니다!
 
 # import torch
+# import os
 import random
 
 model = None  # 전역 변수로 모델을 유지해주세요! 변수 이름도 model로 유지하셔야 합니다!
 
+# 사용할 모델의 구조를 지정하는 클래스나 사용할 보조 함수를 여기에 작성하세요.
+# 예시1: 모델 구조 정의 클래스
+# class MyModel(torch.nn.Module):
+#     def __init__(self):
+#         super().__init__()
+#         # 모델의 레이어를 정의하세요.
+#     def forward(self, x):
+#         # 모델의 순전파 과정을 정의하세요.
+#         return x
+
+# 예시2: run에서 사용할 보조 함수
+# def helper_function(args):
+#     # 보조 함수의 내용을 작성하세요.
+
+# 반드시 init(),run()함수를 구현해줘야 합니다. 없으면 에러가 발생합니다.
 def init():
     # << 체점 시 양쪽 에이전트에 대해서 처음 한 번 실행되는 함수입니다. >>
     # 딥러닝을 통해 게임 에이전트 모델을 training하신 경우에는 모델을 델러오고, 평가 모드로 전환하는 부분을 이곳에 넣으셔야 합니다.
     # 딥러닝을 사용하지 않으셨더라도, Model-based AI로 에이전트를 만드신 분들도 이곳에서 모델/데이터 로딩을 하시면 됩니다.
     global model
     
-    # 예시: 학습된 모델 로드
-    # model = torch.load("weights.pt", map_location="cpu")
+    # 예시1: 학습된 모델 로드
+    # current_dir = os.path.dirname(os.path.abspath(__file__))
+    # model_path = os.path.join(current_dir, "weights.pt") # 학습된 모델 파일 이름을 작성하세요.
+    # model = torch.load(model_path, map_location="cpu") 
+    # 훈련한 모델을 불러오는 경우 반드시 위의 방법으로 경로를 지정하여 불러오시기 바랍니다. 양식을 따르지 않을 경우 채점 서버에서 오류가 발생할 수 있습니다.
     # model.eval() # model을 training이 아닌 evalutation 모드로 전환
+    
+    # 예시2: 학습된 모델을 사용하지 않는 경우
+    # model = None 
+    # 위의 코드는 모델을 사용하지 않는다는 의미입니다. 모델이 필요없는 rule-based AI를 구현하신 분들은 이렇게 작성하시면 됩니다.
 
 def run(board_lines, xsize, ysize):
     # << 에이전트의 차례가 될 때마다 실행되는 함수입니다. >>
