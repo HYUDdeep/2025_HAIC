@@ -1,27 +1,8 @@
-import random
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Sequence, Set, Tuple
-
+# 모델 import
 from main import DotsAndBoxesBoard, HeuristicAgent, Move, bitmap_to_edges
-from weak_agents import RecklessAgent
-
-
-class RandomAgent:
-    def __init__(self, seed: Optional[int] = None):
-        self._rng = random.Random(seed)
-
-    def select_move(self, board_lines: Sequence, xsize: int, ysize: int) -> Move:
-        edges = bitmap_to_edges(board_lines, xsize, ysize)
-        board = DotsAndBoxesBoard(xsize, ysize, edges)
-        moves = board.available_moves()
-        if not moves:
-            raise ValueError("둘 수 있는 수가 없습니다.")
-        return self._rng.choice(moves)
-
-
-# RecklessAgent는 weak_agents.py에 정의되어 있습니다.
-
 
 def total_edge_count(xsize: int, ysize: int) -> int:
     return xsize * (ysize + 1) + ysize * (xsize + 1)
@@ -178,6 +159,7 @@ if __name__ == "__main__":
     sections: List[str] = []
 
     results = evaluate_agents(
+        # 모델 바꾸기
         heuristic_a,
         heuristic_b,
         games=games,
