@@ -5,6 +5,7 @@ from typing import List, Optional, Sequence, Set, Tuple
 from main import DotsAndBoxesBoard, HeuristicAgent, Move, bitmap_to_edges
 from MinMax import MinMaxAgent
 from MinMax_dynamic_depth import DynamicDepthMinMaxAgent
+from Ensemble import EnsembleAgent
 
 def total_edge_count(xsize: int, ysize: int) -> int:
     return xsize * (ysize + 1) + ysize * (xsize + 1)
@@ -75,7 +76,7 @@ class DotsAndBoxesGame:
         return True
 
 
-def evaluate_agents(agent_a, agent_b, games: int, xsize: int, ysize: int, report_interval: int = 100) -> dict:
+def evaluate_agents(agent_a, agent_b, games: int, xsize: int, ysize: int, report_interval: int = 20) -> dict:
     stats = {
         "games": 0,
         "wins_a": 0,
@@ -126,7 +127,7 @@ def evaluate_agents(agent_a, agent_b, games: int, xsize: int, ysize: int, report
         stats["games"] += 1
         stats["avg_score_diff"] += score_a - score_b
 
-        # 100게임마다 중간 결과 출력
+        # 10게임마다 중간 결과 출력
         if (game_idx + 1) % report_interval == 0:
             current_avg_diff = stats["avg_score_diff"] / stats["games"]
             win_rate_a = (stats["wins_a"] / stats["games"]) * 100
@@ -173,9 +174,11 @@ if __name__ == "__main__":
     print("🤖 에이전트 초기화 중...")
     minmax_dynamic_depth_agent = DynamicDepthMinMaxAgent(seed=42, time_limit=0.8)
     minmax_agent = MinMaxAgent(seed=42, max_depth=4, time_limit=0.9)
+    heuristic_agent = HeuristicAgent(seed=42)
+    ensemble_agent = EnsembleAgent(seed=42, time_limit=0.8)
     print("✅ 에이전트 초기화 완료!\n")
 
-    games = 100
+    games = 20
     
     # 시작 시간 기록
     start_time = datetime.now()
@@ -183,12 +186,12 @@ if __name__ == "__main__":
 
     results = evaluate_agents(
         # 모델 바꾸기
-        minmax_dynamic_depth_agent,
+        ensemble_agent,
         minmax_agent,
         games=games,
         xsize=5,
         ysize=5,
-        report_interval=10
+        report_interval=2
     )
 
     # 최종 결과 출력
@@ -198,8 +201,8 @@ if __name__ == "__main__":
     print(f"\n{'='*60}")
     print(f"📊 최종 결과 (총 {results['games']}게임)")
     print(f"{'='*60}")
-    print(f"Agent A (Heuristic) 승리: {results['wins_a']}승 ({results['wins_a']/results['games']*100:.1f}%)")
-    print(f"Agent B (MinMax)    승리: {results['wins_b']}승 ({results['wins_b']/results['games']*100:.1f}%)")
+    print(f"Agent A  승리: {results['wins_a']}승 ({results['wins_a']/results['games']*100:.1f}%)")
+    print(f"Agent B  승리: {results['wins_b']}승 ({results['wins_b']/results['games']*100:.1f}%)")
     
     draws = results['games'] - results['wins_a'] - results['wins_b']
     print(f"무승부: {draws}회")
