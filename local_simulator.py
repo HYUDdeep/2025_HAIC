@@ -3,6 +3,8 @@ from pathlib import Path
 from typing import List, Optional, Sequence, Set, Tuple
 # 모델 import
 from main import DotsAndBoxesBoard, HeuristicAgent, Move, bitmap_to_edges
+from MinMax import MinMaxAgent
+from MinMax_dynamic_depth import DynamicDepthMinMaxAgent
 
 def total_edge_count(xsize: int, ysize: int) -> int:
     return xsize * (ysize + 1) + ysize * (xsize + 1)
@@ -73,7 +75,7 @@ class DotsAndBoxesGame:
         return True
 
 
-def evaluate_agents(agent_a, agent_b, games: int, xsize: int, ysize: int) -> dict:
+def evaluate_agents(agent_a, agent_b, games: int, xsize: int, ysize: int, report_interval: int = 100) -> dict:
     stats = {
         "games": 0,
         "wins_a": 0,
@@ -82,6 +84,10 @@ def evaluate_agents(agent_a, agent_b, games: int, xsize: int, ysize: int) -> dic
         "illegal_losses_b": 0,
         "avg_score_diff": 0.0,
     }
+
+    print(f"{'='*60}")
+    print(f"총 {games}게임 시작 (5x5 보드)")
+    print(f"{'='*60}\n")
 
     for game_idx in range(games):
         if game_idx % 2 == 0:
@@ -120,6 +126,18 @@ def evaluate_agents(agent_a, agent_b, games: int, xsize: int, ysize: int) -> dic
         stats["games"] += 1
         stats["avg_score_diff"] += score_a - score_b
 
+        # 100게임마다 중간 결과 출력
+        if (game_idx + 1) % report_interval == 0:
+            current_avg_diff = stats["avg_score_diff"] / stats["games"]
+            win_rate_a = (stats["wins_a"] / stats["games"]) * 100
+            win_rate_b = (stats["wins_b"] / stats["games"]) * 100
+            draws = stats["games"] - stats["wins_a"] - stats["wins_b"]
+            
+            print(f"[{game_idx + 1}/{games}게임 완료]")
+            print(f"  A 승: {stats['wins_a']}승 ({win_rate_a:.1f}%) | B 승: {stats['wins_b']}승 ({win_rate_b:.1f}%) | 무승부: {draws}회")
+            print(f"  평균 점수차: {current_avg_diff:+.2f} | 불법수 패배 A/B: {stats['illegal_losses_a']}/{stats['illegal_losses_b']}")
+            print()
+
     if stats["games"]:
         stats["avg_score_diff"] /= stats["games"]
 
@@ -149,33 +167,45 @@ def play_single_game(agent_first, agent_second, xsize: int, ysize: int) -> dict:
 
 
 if __name__ == "__main__":
-    heuristic_a = HeuristicAgent(seed=0)
-    heuristic_b = HeuristicAgent(seed=1)
+    import sys
+    
+    # 에이전트 생성
+    print("🤖 에이전트 초기화 중...")
+    minmax_dynamic_depth_agent = DynamicDepthMinMaxAgent(seed=42, time_limit=0.8)
+    minmax_agent = MinMaxAgent(seed=42, max_depth=4, time_limit=0.9)
+    print("✅ 에이전트 초기화 완료!\n")
 
-    games = 1000
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    report_path = Path(__file__).with_name(f"simulation_report_{timestamp}.txt")
-
-    sections: List[str] = []
+    games = 100
+    
+    # 시작 시간 기록
+    start_time = datetime.now()
+    print(f"⏰ 시작 시간: {start_time.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
     results = evaluate_agents(
         # 모델 바꾸기
-        heuristic_a,
-        heuristic_b,
+        minmax_dynamic_depth_agent,
+        minmax_agent,
         games=games,
         xsize=5,
         ysize=5,
+        report_interval=10
     )
 
-    section = ["=== Heuristic A vs Heuristic B ==="]
-    section.append(f"총 게임 수: {results['games']}")
-    section.append(f"A(Heuristic A) 승리: {results['wins_a']}")
-    section.append(f"B(Heuristic B) 승리: {results['wins_b']}")
-    section.append(f"평균 점수 차 (A-B): {results['avg_score_diff']:.3f}")
-    section.append(
-        f"불법 수로 진 A/B: {results['illegal_losses_a']} / {results['illegal_losses_b']}"
-    )
-
-    sections.append("\n".join(section))
-
-    report_path.write_text("\n\n".join(sections) + "\n", encoding="utf-8")
+    # 최종 결과 출력
+    end_time = datetime.now()
+    elapsed = end_time - start_time
+    
+    print(f"\n{'='*60}")
+    print(f"📊 최종 결과 (총 {results['games']}게임)")
+    print(f"{'='*60}")
+    print(f"Agent A (Heuristic) 승리: {results['wins_a']}승 ({results['wins_a']/results['games']*100:.1f}%)")
+    print(f"Agent B (MinMax)    승리: {results['wins_b']}승 ({results['wins_b']/results['games']*100:.1f}%)")
+    
+    draws = results['games'] - results['wins_a'] - results['wins_b']
+    print(f"무승부: {draws}회")
+    print(f"\n평균 점수 차이 (A-B): {results['avg_score_diff']:+.3f}")
+    print(f"불법 수로 진 경기 - A: {results['illegal_losses_a']}회 / B: {results['illegal_losses_b']}회")
+    
+    print(f"\n⏱️  총 소요 시간: {elapsed.total_seconds():.1f}초")
+    print(f"⚡ 게임당 평균 시간: {elapsed.total_seconds()/results['games']:.3f}초")
+    print(f"{'='*60}\n")
